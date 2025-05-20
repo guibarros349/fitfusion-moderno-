@@ -1,100 +1,125 @@
-
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FitFusion</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    :root {
-      --bg-light: #f5f5f5;
-      --text-light: #333;
-      --bg-dark: #1a1a1a;
-      --text-dark: #eee;
-      --primary: #28a745;
-    }
-    [data-theme='light'] {
-      background-color: var(--bg-light);
-      color: var(--text-light);
-    }
-    [data-theme='dark'] {
-      background-color: var(--bg-dark);
-      color: var(--text-dark);
-    }
     body {
+      font-family: Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       padding: 2rem;
-      transition: background 0.3s, color 0.3s;
+      transition: background-color 0.3s, color 0.3s;
     }
-    h1 {
-      color: var(--primary);
+    :root {
+      --bg: #ffffff;
+      --text: #000000;
     }
-    .login {
-      margin-top: 2rem;
-      padding: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      max-width: 300px;
-      width: 100%;
-      background: rgba(255,255,255,0.1);
+    .dark-mode {
+      --bg: #121212;
+      --text: #ffffff;
     }
-    input, button {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.5rem;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-    .toggle-theme {
+    button {
+      padding: 10px 20px;
       margin-top: 1rem;
       cursor: pointer;
-      background: none;
-      border: 2px solid var(--primary);
-      color: var(--primary);
-    }
-    .whatsapp {
-      margin-top: 2rem;
-      text-decoration: none;
-      color: white;
-      background: #25D366;
-      padding: 0.8rem 1.2rem;
-      border-radius: 8px;
-      display: inline-block;
     }
   </style>
 </head>
 <body>
-  <h1>👋 Bem-vindo ao FitFusion</h1>
-  <p>Sistema inteligente de treino, dieta e automação via WhatsApp.</p>
-
-  <div class="login">
-    <h3>Login</h3>
-    <input type="email" placeholder="Email" id="email">
-    <input type="password" placeholder="Senha" id="senha">
-    <button onclick="login()">Entrar</button>
+  <h1>FitFusion</h1>
+  <button onclick="toggleDarkMode()">🌗 Alternar modo claro/escuro</button>
+  <br /><br />
+  <button onclick="loginWithGoogle()">Entrar com Google</button>
+  <div id="form" style="display:none;">
+    <h2>Informe seus dados</h2>
+    <input type="number" id="idade" placeholder="Idade" /><br />
+    <input type="number" id="peso" placeholder="Peso (kg)" /><br />
+    <input type="number" id="altura" placeholder="Altura (cm)" /><br />
+    <select id="objetivo">
+      <option value="perder">Perder peso</option>
+      <option value="manter">Manter forma</option>
+      <option value="ganhar">Ganhar massa</option>
+    </select><br /><br />
+    <button onclick="calcularDieta()">Calcular</button>
+    <p id="resultado"></p>
   </div>
 
-  <button class="toggle-theme" onclick="toggleTheme()">🌗 Alternar Tema</button>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-  <a class="whatsapp" href="https://wa.me/5561994195767?text=Olá%20quero%20iniciar%20no%20FitFusion!" target="_blank">
-    📲 Fale no WhatsApp
-  </a>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDNr6pNrWBl1jawI9utddf_wT7Qnukj0w0",
+      authDomain: "fitfusion-5b727.firebaseapp.com",
+      projectId: "fitfusion-5b727",
+      storageBucket: "fitfusion-5b727.firebasestorage.app",
+      messagingSenderId: "9889974134",
+      appId: "1:9889974134:web:874fe5c5633e88f7191c57",
+      measurementId: "G-QJNWVCX4SE"
+    };
 
-  <script>
-    function toggleTheme() {
-      const html = document.documentElement;
-      html.dataset.theme = html.dataset.theme === 'light' ? 'dark' : 'light';
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
     }
 
-    function login() {
-      const email = document.getElementById("email").value;
-      const senha = document.getElementById("senha").value;
-      alert(`Login enviado!\nEmail: ${email}\nSenha: ${senha}`);
-    }
+    window.loginWithGoogle = async () => {
+      const provider = new GoogleAuthProvider();
+      try {
+        const result = await signInWithPopup(auth, provider);
+        window.user = result.user;
+        document.getElementById("form").style.display = "block";
+      } catch (error) {
+        alert("Erro ao fazer login: " + error.message);
+      }
+    };
+
+    window.calcularDieta = async () => {
+      const idade = parseInt(document.getElementById("idade").value);
+      const peso = parseFloat(document.getElementById("peso").value);
+      const altura = parseFloat(document.getElementById("altura").value);
+      const objetivo = document.getElementById("objetivo").value;
+
+      if (!idade || !peso || !altura) {
+        alert("Preencha todos os campos!");
+        return;
+      }
+
+      const imc = peso / ((altura / 100) ** 2);
+      let mensagem = "";
+
+      if (objetivo === "perder") {
+        mensagem = "Dieta com déficit calórico e treino cardio + funcional";
+      } else if (objetivo === "manter") {
+        mensagem = "Dieta de manutenção e treinos leves";
+      } else {
+        mensagem = "Dieta rica em proteínas e treinos de força intensos";
+      }
+
+      document.getElementById("resultado").innerText = `Seu IMC é ${imc.toFixed(2)}. ${mensagem}`;
+
+      if (window.user) {
+        const ref = doc(db, "usuarios", window.user.uid);
+        await setDoc(ref, {
+          nome: window.user.displayName,
+          email: window.user.email,
+          idade, peso, altura, objetivo, imc: imc.toFixed(2),
+          timestamp: new Date()
+        });
+      }
+    };
   </script>
 </body>
 </html>
+
+ 
+       
+       
+   
