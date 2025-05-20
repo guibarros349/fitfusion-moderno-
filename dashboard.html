@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FitFusion - Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Bem-vindo ao FitFusion</h1>
+    <form id="user-form">
+      <input type="number" id="idade" placeholder="Idade" required />
+      <select id="sexo">
+        <option value="masculino">Masculino</option>
+        <option value="feminino">Feminino</option>
+      </select>
+      <input type="number" id="peso" placeholder="Peso (kg)" required />
+      <input type="number" id="altura" placeholder="Altura (cm)" required />
+      <select id="nivel">
+        <option value="iniciante">Iniciante</option>
+        <option value="intermediario">Intermediário</option>
+        <option value="avancado">Avançado</option>
+      </select>
+      <select id="objetivo">
+        <option value="perder">Perder peso</option>
+        <option value="manter">Manter</option>
+        <option value="ganhar">Ganhar massa</option>
+      </select>
+      <button type="submit">Calcular</button>
+    </form>
+
+    <div id="resultado"></div>
+    <button onclick="logout()">Sair</button>
+  </div>
+
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module" src="scripts.js"></script>
+</body>
+</html>
